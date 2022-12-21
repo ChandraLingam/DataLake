@@ -1,0 +1,27 @@
+--- Correct Permission Set for Glue Notebook ---
+1. Created a new role:
+    AWSGlueServiceNotebookRoleDefault
+    
+2. Add inline passrole permission - notebook can pass the permission to interactive session
+   NOTE: Replace 1234567890 in the resource with your Account Id
+   
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "arn:aws:iam::1234567890:role/AWSGlueServiceNotebookRoleDefault"            
+        }
+    ]
+   }
+    
+3. Attach permission to match AWSGlueServiceRoleDefault
+    Policy Name: AWSGlueServiceRole
+
+--- References ---
+Setting up IAM permissions for AWS Glue
+https://docs.aws.amazon.com/glue/latest/dg/attach-policy-iam-user.html
+https://docs.aws.amazon.com/glue/latest/ug/using-notebooks-overview.html
+
+https://docs.aws.amazon.com/glue/latest/ug/notebook-getting-started.html
