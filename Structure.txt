@@ -1,0 +1,27 @@
+*** Git ***
+DataLake (repository)
+    -> iris
+        -> data (separate folder)
+        -> code
+        -> sql
+        
+    -> university_ranking
+        -> data (separate folder)
+        -> code
+        -> sql
+        
+    -> customer_review
+        -> data
+        -> code
+        -> sql
+        
+*** S3 Folder Structure ***
+aws-glue-yourname-region (bucket-name)
+    -> iris        
+        -> csv
+        -> parquet
+        
+    -> university_ranking
+        -> csv
+        -> csv_clean
+        -> parquet_clean    
