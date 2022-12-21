@@ -1,17 +1,17 @@
 *** Git ***
 DataLake (repository)
-    -> iris
+    -> Iris
         -> data (separate folder)
         -> code
         -> sql
         
-    -> university_ranking
+    -> UniversityRanking
         -> data (separate folder)
         -> code
         -> sql
         
-    -> customer_review
-        -> data
+    -> CustomerReview
+        -> data (separate folder)
         -> code
         -> sql
         
