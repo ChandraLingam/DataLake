@@ -3,6 +3,7 @@
 -- https://stackoverflow.com/questions/50354123/aws-glue-issue-with-double-quote-and-commas
 -- https://aws.amazon.com/premiumsupport/knowledge-center/athena-hive-bad-data-error-csv/
 
+
 -- Option 1 - Use opencsvserde to parse university ranking data 
 -- and map columns to correct data type ---
 CREATE EXTERNAL TABLE IF NOT EXISTS `learn_by_doing.university_ranking_csv`(
@@ -26,6 +27,11 @@ WITH SERDEPROPERTIES ("separatorChar" = ",", "escapeChar" = "\\", "quoteChar"='\
 LOCATION
   's3://aws-glue-chandra-us-east-1/university_ranking/csv/'
 TBLPROPERTIES ("skip.header.line.count"="1")
+
+
+
+
+
 
 -- Option 2 - Use string data type with OpenCSVSerde to handle missing values! ---
 -- creating all columns as string 
@@ -89,3 +95,28 @@ SELECT university,
        faculty_count
 FROM "learn_by_doing"."university_ranking_csv"
 order by year, n_rank;
+
+
+-- Option 4 - Clean Data 
+-- Use opencsvserde to parse university ranking data 
+-- and map columns to correct data type ---
+CREATE EXTERNAL TABLE IF NOT EXISTS `learn_by_doing.university_ranking`(
+  `university` string, 
+  `year` int, 
+  `rank_display` string, 
+  `n_rank` int,
+  `score` float, 
+  `country` string, 
+  `city` string, 
+  `region` string, 
+  `type` string, 
+  `research_output` string, 
+  `student_faculty_ratio` float, 
+  `international_students` int, 
+  `size` string, 
+  `faculty_count` int)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' 
+WITH SERDEPROPERTIES ("separatorChar" = ",", "escapeChar" = "\\", "quoteChar"='\"') 
+LOCATION
+  's3://aws-glue-chandra-us-east-1/university_ranking/csv_clean/'
+TBLPROPERTIES ("skip.header.line.count"="1")

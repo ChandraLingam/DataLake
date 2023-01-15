@@ -20,6 +20,12 @@ FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_csv"
 WHERE rank_display < 5
 ORDER BY year, rank_display;
 
+--- Distinct Rank Display Values Sorted by Length
+SELECT DISTINCT rank_display, length(rank_display) as rank_length
+FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_csv"
+ORDER BY length(rank_display) desc;
+
+
 --- 2. Top 5 universities - String ---
 SELECT * 
 FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_csv"
@@ -79,12 +85,28 @@ SELECT regexp_replace(international_students,'[.,]','') as international_student
 FROM "learn_by_doing"."university_ranking_csv" 
 WHERE country = 'Norway';
 
---- 10. Type Conversion
+--- 10.1 Type Conversion --- 
 SELECT 
     COALESCE(TRY(CAST(regexp_replace(international_students,'[.,]','') AS int)),-1) as international_students,
     COALESCE(TRY(CAST(regexp_replace(faculty_count,'[.,]','') AS int)),-1) as faculty_count
 FROM "learn_by_doing"."university_ranking_csv" 
 WHERE country = 'Norway';
+
+--- 10.2 Complete Query ---
+SELECT university,
+       COALESCE(TRY(CAST(year AS int)),9999) AS year, 
+       rank_display, 
+       COALESCE(TRY(CAST(split_part(rank_display,'-',1) AS int)),9999) AS n_rank,
+       COALESCE(TRY(CAST(score AS double)),-1) AS score, 
+       country, city, region, type,
+       research_output, 
+       COALESCE(TRY(CAST(student_faculty_ratio AS double)),-1) AS student_faculty_ratio,
+       COALESCE(TRY(CAST(regexp_replace(international_students,'[.,]','') AS int)),-1) as international_students,
+       size, 
+       COALESCE(TRY(CAST(regexp_replace(faculty_count,'[.,]','') AS int)),-1) as faculty_count
+FROM "learn_by_doing"."university_ranking_csv"
+order by year, n_rank;
+
 
 
 --- 11. Convert to appropriate type using a view
@@ -111,19 +133,20 @@ SELECT *
 FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_view" limit 10;
 
 --- 12.2. Top 5 universities ---
-SELECT * 
-FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_view"
-WHERE n_rank < 5
+SELECT year, university, n_rank, country, region, score, type
+FROM "learn_by_doing"."university_ranking_view" 
+WHERE n_rank < 6
 ORDER BY year, n_rank;
 
---- 12.3. Top 3 universities in each region by year --- 
-SELECT year, region, d_rank, n_rank, university, type, country
-FROM (
-    SELECT university, year, n_rank, country, region, score, type,
-    DENSE_RANK() OVER(PARTITION BY year, region ORDER BY n_rank) AS d_rank
-    FROM "learn_by_doing"."university_ranking_view")
-WHERE d_rank < 4
-ORDER BY year, region, d_rank;
+--- 12.3. Top 5 universities in each region by year --- 
+SELECT * 
+FROM (SELECT year, 
+       region, 
+       DENSE_RANK() OVER(PARTITION BY year, region ORDER BY n_rank) AS region_rank,
+       n_rank, university, country, score, type
+      FROM "learn_by_doing"."university_ranking_view")
+WHERE region_rank < 6
+ORDER BY year, region, region_rank;
 
 --- 12.4 University Count by Region ---
 SELECT region, count(*) as count
@@ -136,6 +159,43 @@ SELECT region, count(*) as count
 FROM (
     SELECT region, university
     FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_view"
+    GROUP BY region, university
+    )
+GROUP BY region
+ORDER BY count;
+
+--- Query using Parquet Clean Data ---
+--- 1. View data
+SELECT * 
+FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_parquet" limit 10;
+
+--- 2. Top 5 universities ---
+SELECT year, university, n_rank, country, region, score, type
+FROM "learn_by_doing"."university_ranking_parquet" 
+WHERE n_rank < 6
+ORDER BY year, n_rank;
+
+--- 3. Top 5 universities in each region by year --- 
+SELECT * 
+FROM (SELECT year, 
+       region, 
+       DENSE_RANK() OVER(PARTITION BY year, region ORDER BY n_rank) AS region_rank,
+       n_rank, university, country, score, type
+      FROM "learn_by_doing"."university_ranking_parquet")
+WHERE region_rank < 6
+ORDER BY year, region, region_rank;
+
+--- 4. University Count by Region ---
+SELECT region, count(*) as count
+FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_parquet"
+GROUP BY region
+ORDER BY count;
+
+--- 5. University Count by Region - Remove Duplicates ---
+SELECT region, count(*) as count
+FROM (
+    SELECT region, university
+    FROM "AwsDataCatalog"."learn_by_doing"."university_ranking_parquet"
     GROUP BY region, university
     )
 GROUP BY region
