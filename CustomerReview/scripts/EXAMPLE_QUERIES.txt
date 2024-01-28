@@ -1,3 +1,14 @@
+-- Preview Customer Reviews
+SELECT * 
+FROM "amazon_reviews_parquet"
+limit 10;
+
+-- Show distinct sentiments
+SELECT distinct sentiment
+FROM "amazon_reviews_parquet"
+limit 10;
+
+
 -- List top rated appliances
 SELECT * 
 FROM "amazon_reviews_parquet"
