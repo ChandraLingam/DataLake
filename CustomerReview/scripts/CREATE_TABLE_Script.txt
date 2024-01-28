@@ -22,6 +22,6 @@ STORED AS INPUTFORMAT
 OUTPUTFORMAT 
   'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
 LOCATION
-  's3://your-bucket/customer_reviews_parquet/'
+  's3://your-bucket/customer_review_parquet/'
 TBLPROPERTIES (
   'transient_lastDdlTime'='1676737250')
