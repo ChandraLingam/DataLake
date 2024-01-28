@@ -8,22 +8,12 @@ SELECT distinct sentiment
 FROM "amazon_reviews_parquet"
 limit 10;
 
-
 -- List top rated appliances
-SELECT * 
-FROM "amazon_reviews_parquet"
-where product_category='Major Appliances'
-and star_rating > 3
-limit 10;
-
--- List top rated dryers
-SELECT
+SELECT 
     product_title, star_rating,
     sentiment, review_headline, review_body
 FROM "amazon_reviews_parquet"
-where product_category='Major Appliances'
-and star_rating > 3
-and product_title like '%Dryer%'
+order by star_rating desc
 limit 10;
 
 -- Good star rating but sentiment is not positive
@@ -31,7 +21,16 @@ SELECT
     product_title, star_rating,
     sentiment, review_headline, review_body
 FROM "amazon_reviews_parquet"
+where star_rating > 3
+and sentiment != 'POSITIVE'
+limit 10;
+
+-- List top rated 
+SELECT
+    product_title, star_rating,
+    sentiment, review_headline, review_body
+FROM "amazon_reviews_parquet"
 where product_category='Major Appliances'
 and star_rating > 3
-and sentiment != 'POSITIVE'
+and product_title like '%Dryer%'
 limit 10;
